@@ -1,18 +1,31 @@
 const google = require("../../helpers/google-verify");
-const jsonweb = require("../../helpers/generar-jwt");
+//const jsonweb = require("../../helpers/generar-jwt");
+const query = require("../../config/index");
 
-exports.googleSignin = async(req, res = response) => {
+//npm i google-auth-library
+//npm i dotenv
+exports.googleSignin = async (req, res = response) => {
 
     const { id_token } = req.body;
 
-    try {
-        const { correo, nombre, img } = await google.googleVerify( id_token );
+    //try {
+        //const { correo, nombre, img } = await google.googleVerify( id_token );
 
         //Buscar en base de datos si existe el correo, de existir no puede iniciar con google
         //Esto es con mongo db pasar a mysql
-        let usuario = await Usuario.findOne({ correo });
+        let correo = "redes.ply@costamed.com.mx";
+        let usuario;
+
+        //Setencia para buscar un usuario por ID
+        usuario = await query('Select * from usuarios WHERE correo= ? ', [correo]);
+        
+        if( usuario ){
+            //Ya entra
+            console.log(usuario);
+        }
 
         //Si no existe agregarlo a la base de datos con google true
+        /*
         if ( !usuario ) {
             // Tengo que crearlo
             const data = {
@@ -52,15 +65,14 @@ exports.googleSignin = async(req, res = response) => {
             usuario,
             token
         });
-        
+     
     } catch (error) {
 
         res.status(400).json({
             msg: 'Token de Google no es válido'
         })
-
-    }
-
+    
+    }*/  
 
 
 }

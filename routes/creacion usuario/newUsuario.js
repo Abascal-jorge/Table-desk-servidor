@@ -12,4 +12,19 @@ app.get(
      usuario.getUsuarios
 );
 
+app.get(
+     "/usuario/:id",
+     usuario.getUsuarioID
+);
+
+app.put(
+     "/usuario/:id",
+     usuario.putActualizarUsuario
+);
+
+app.delete(
+     "/usuario/:id",
+     usuario.deleteUsuario
+);
+
 module.exports = app;

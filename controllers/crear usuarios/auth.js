@@ -4,24 +4,17 @@ const query = require("../../config/index");
 
 //npm i google-auth-library
 //npm i dotenv
-exports.googleSignin = async(req, res = response) => {
-
+exports.googleSignin = async( req, res ) => {
     const { id_token } = req.body;
-
+    console.log(id_token);
     try {
-
         //La siguiente linea esta causando un error
         const { correo, nombre, img } = await googleVerify( id_token );
-
-        console.log("hola 2");
-
         //Buscar en base de datos si existe el correo, de existir no puede iniciar con google
         //Esto es con mongo db pasar a mysql
         let usuario;
-
         //Setencia para buscar un usuario por ID
         usuario = await query('Select * from usuarios WHERE correo= ? ', [correo]);
-
         if( usuario.length === 0 ){
             //Si no existe el usuario crear usuario nuevo
             // Tengo que crearlo
@@ -74,5 +67,51 @@ exports.googleSignin = async(req, res = response) => {
     
     }
 
+
+}
+
+exports.facebookSignin = async( req, res ) => {
+    const datos = req.body;  // Datos debe traer correo, img, nombre || rol facebook password google lo agregamos
+    const { correo, img, nombre } = datos;
+    let usuario;
+    usuario = await query("select * from usuarios where correo=?",[correo]);
+
+    //Si no existe el usuario lo agrega a la base de datos
+    if( usuario.length === 0 ){
+        const infoUsuario = {
+            correo,
+            img,
+            nombre,
+            password: ":D",
+            google: false,
+            facebook: true,
+            rol: "USER_ROL"
+        }
+
+        try {
+            usuario = await query('INSERT INTO usuarios SET ?', infoUsuario);
+            //Vuelvo a buscar en la base de datos el usuario ahora que ya se creo para tener esta variable con el usuario creado
+            usuario = await query("select * from usuarios where correo=?",[correo]);
+            //mensaje  guia
+            console.log("Paso por aqui");
+        } catch (error) {
+            return res.status(400).json({ ok: false, error });
+        }  
+    }
+
+    //Si ya existe el usuario revisar si facebook esta en true, si no esta en true retornar mensaje
+    if ( !usuario[0].facebook ) {
+        return res.status(401).json({
+            msg: 'Hable con el administrador, usuario bloqueado'
+        });
+    }
+    //Crear json web token
+    //Si el usuario existe o se crea con facebook true se genera un nuevo token
+    const token = await generarJWT( usuario[0].id_usuario );
+        
+    return res.json({
+        usuario,
+        token
+    });
 
 }

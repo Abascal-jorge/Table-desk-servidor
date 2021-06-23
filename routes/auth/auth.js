@@ -3,8 +3,13 @@ const app =  express();
 const auth = require("../../controllers/crear usuarios/auth");
 
 app.post(
-    "/auth",
+    "/google",
     auth.googleSignin    
+);
+
+app.post(
+    "/facebook",
+    auth.facebookSignin
 );
 
 module.exports = app;

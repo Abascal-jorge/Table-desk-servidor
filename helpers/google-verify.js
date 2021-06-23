@@ -3,13 +3,16 @@ const { OAuth2Client } = require('google-auth-library');
 //ID google developer
 const client = new OAuth2Client( process.env.GOOGLE_CLIENT_ID );
 
-exports.googleVerify = async ( idToken = '' ) => {
+
+const googleVerify = async ( idToken = '' ) => {
+
   const ticket = await client.verifyIdToken({
       idToken,
-      audience: process.env.GOOGLE_CLIENT_ID,  // Specify the CLIENT_ID of the app that accesses the backend
-      // Or, if multiple clients access the backend:
-      //[CLIENT_ID_1, CLIENT_ID_2, CLIENT_ID_3]
+      audience: process.env.GOOGLE_CLIENT_ID
   });
+
+  ///No llega a este punto
+  console.log( ticket );
 
   const { name: nombre, 
           picture: img, 
@@ -17,4 +20,11 @@ exports.googleVerify = async ( idToken = '' ) => {
         } = ticket.payload;
   
   return { nombre, img, correo };
+
 };
+
+module.exports = {
+  googleVerify
+}
+
+

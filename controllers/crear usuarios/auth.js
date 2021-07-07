@@ -1,6 +1,38 @@
 const { googleVerify } = require("../../helpers/google-verify");
 const { generarJWT } = require("../../helpers/generar-jwt");
 const query = require("../../config/index");
+const bcryptjs = require("bcryptjs");
+
+exports.correoSing = async ( req, res ) => {
+    const { correo, password } = req.body;
+
+    try {
+        
+        //Verificamos si el correo existe en los usuarios de la base de datos
+        const usuario = await query('Select * from usuarios WHERE correo = ?', correo);
+
+        //Si existe traemos los datos del usuario y comparamos contraseñas si son igual mandamos token si no son iguales retornamos un mensaje de falla de contraseña
+        const validarPassword = bcryptjs.compareSync( password, usuario[0].password);
+    
+        if(!validarPassword){
+            return res.status(400).json({
+                ok: false,
+                msg: "Contraseña incorrecta"
+            });
+        }
+
+        //Hay que generar el token y retornarlo junto con el usuario;
+        res.json({
+            usuario
+        });
+    } catch (error) {
+        return res.status(400).json({
+            ok: false,
+            error
+        });
+    }
+}
+
 
 //npm i google-auth-library
 //npm i dotenv

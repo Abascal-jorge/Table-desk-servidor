@@ -12,4 +12,9 @@ app.post(
     auth.facebookSignin
 );
 
+app.post(
+    "/logincorreo",
+    auth.correoSing
+);
+
 module.exports = app;
